@@ -1,3 +1,11 @@
+> [!NOTE]
+> This is the [Logos Blockchain](https://github.com/logos-blockchain) fork of
+> [iden3/rapidsnark](https://github.com/iden3/rapidsnark), the Groth16 prover used by
+> [logos-blockchain-rust-rapidsnark](https://github.com/logos-blockchain/logos-blockchain-rust-rapidsnark) and
+> [logos-blockchain-circuits](https://github.com/logos-blockchain/logos-blockchain-circuits).
+>
+> See [CONTRIBUTING.md](./CONTRIBUTING.md) for how this fork is maintained.
+
 ## Important note 
 
 **This is a new implementation of rapidsnark. The original (and now obsoleted) implementation is available here: [rapidsnark-old](https://github.com/iden3/rapidsnark-old).**
