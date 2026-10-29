@@ -21,6 +21,14 @@ host_linux_arm64_static:
 	cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package $(STATIC_CMAKE_FLAGS) && \
 	make -j$(nproc) -vvv && make install
 
+# Cross-built from Linux. USE_ASM=OFF: the generated x86_64 asm uses the System V calling convention, not Windows'.
+windows_x86_64_static:
+	rm -rf build_prover_windows_x86_64 && mkdir build_prover_windows_x86_64 && cd build_prover_windows_x86_64 && \
+	cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/mingw-w64-x86_64.cmake -DUSE_ASM=OFF -DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=../package_windows_x86_64 -DTARGET_PLATFORM=windows_x86_64 \
+		-DCMAKE_EXE_LINKER_FLAGS="-static -static-libstdc++ -static-libgcc" && \
+	make -j$(nproc) -vvv && make install
+
 host_noasm:
 	rm -rf build_prover_noasm && mkdir build_prover_noasm && cd build_prover_noasm && \
 		cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_noasm -DUSE_ASM=NO && \
