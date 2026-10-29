@@ -129,6 +129,11 @@ build_host()
     # artifacts of GMP that were built on one GitHub CI server, we would get a
     # crash on another server that does not support instructions from the
     # original builder.
+    #
+    # GMP 6.3.0 fails to build as C23, which is GCC's default since GCC 15.
+    # C17 is the latest standard that works.
+    # Set via CC rather than CFLAGS, which would override GMP's own flags.
+    CC="${CC:-cc} -std=gnu17" \
     ../configure --prefix="$PACKAGE_DIR" --with-pic --disable-fft --enable-fat &&
     make -j${NPROC} &&
     make install
@@ -150,6 +155,10 @@ build_host_noasm()
     mkdir "$BUILD_DIR"
     cd "$BUILD_DIR"
 
+    # GMP 6.3.0 fails to build as C23, which is GCC's default since GCC 15.
+    # C17 is the latest standard that works.
+    # Set via CC rather than CFLAGS, which would override GMP's own flags.
+    CC="${CC:-cc} -std=gnu17" \
     ../configure --prefix="$PACKAGE_DIR" --with-pic --disable-fft --disable-assembly &&
     make -j${NPROC} &&
     make install
