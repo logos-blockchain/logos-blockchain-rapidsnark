@@ -269,7 +269,7 @@ build_ios()
     export TARGET=arm64-apple-darwin
     export MIN_IOS_VERSION=8.0
 
-    export ARCH_FLAGS="-arch arm64 -arch arm64e"
+    export ARCH_FLAGS="-arch arm64"
     export OPT_FLAGS="-O3 -g3"
     HOST_FLAGS="${ARCH_FLAGS} -miphoneos-version-min=${MIN_IOS_VERSION} -isysroot $(xcrun --sdk ${SDK} --show-sdk-path)"
 
@@ -303,7 +303,7 @@ build_ios_simulator()
 		case "$ARCH" in
 			"arm64" )
 				echo "Building for iPhone Simulator arm64"
-				ARCH_FLAGS="-arch arm64 -arch arm64e"
+				ARCH_FLAGS="-arch arm64"
 				;;
 			"x86_64" )
 				echo "Building for iPhone Simulator x86_64"
@@ -348,7 +348,7 @@ build_macos_arch()
   ARCH="$1"
   case "$ARCH" in
     "arm64" )
-      ARCH_FLAGS="-arch arm64 -arch arm64e"
+      ARCH_FLAGS="-arch arm64"
       ;;
     "x86_64" )
       ARCH_FLAGS="-arch x86_64"
@@ -370,7 +370,7 @@ build_macos_arch()
   ../configure --prefix="${PACKAGE_DIR}" \
          CC="$(xcrun --sdk macosx --find clang)" \
          CPP_FOR_BUILD="$(xcrun --sdk macosx --find clang) -E" \
-         CFLAGS="-O3 -isysroot $(xcrun --sdk macosx --show-sdk-path) ${ARCH_FLAGS} -fvisibility=hidden -mmacos-version-min=14.0" \
+         CFLAGS="-O3 -isysroot $(xcrun --sdk macosx --show-sdk-path) ${ARCH_FLAGS} -fvisibility=hidden -mmacos-version-min=11.0" \
          LDFLAGS="" \
          --host "${ARCH}-apple-darwin" --enable-static --disable-shared --with-pic &&
     make -j${NPROC} &&
