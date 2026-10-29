@@ -71,6 +71,11 @@ elseif(TARGET_PLATFORM MATCHES "macos_arm64")
     set(GMP_PREFIX ${GMP_ROOT}/package_macos_arm64)
     set(ARCH arm64)
 
+elseif(TARGET_PLATFORM MATCHES "windows_x86_64")
+
+    set(GMP_PREFIX ${GMP_ROOT}/package_windows_x86_64)
+    set(ARCH x86_64)
+
 else()
 
     set(GMP_PREFIX ${GMP_ROOT}/package)
