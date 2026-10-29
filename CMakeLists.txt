@@ -31,6 +31,10 @@ endif()
 
 include_directories(BEFORE ${GMP_INCLUDE_DIR})
 
+if(MINGW)
+    add_compile_options(-include ${CMAKE_CURRENT_SOURCE_DIR}/src/mingw_compat.h)
+endif()
+
 
 if(USE_OPENMP)
     find_package(OpenMP)
