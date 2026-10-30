@@ -4,6 +4,8 @@
 NO_OPENMP_CMAKE_FLAGS = -DUSE_OPENMP=OFF
 STATIC_CMAKE_FLAGS = -DCMAKE_EXE_LINKER_FLAGS="-static -static-libstdc++ -static-libgcc -no-pie" \
 	$(NO_OPENMP_CMAKE_FLAGS)
+PIC_CMAKE_FLAGS = -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+EMBEDDABLE_CMAKE_FLAGS = $(PIC_CMAKE_FLAGS) $(NO_OPENMP_CMAKE_FLAGS)
 
 #Build targets
 host:
@@ -19,6 +21,16 @@ host_linux_x86_64_static:
 host_linux_arm64_static:
 	rm -rf build_prover && mkdir build_prover && cd build_prover && \
 	cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package $(STATIC_CMAKE_FLAGS) && \
+	make -j$(nproc) -vvv && make install
+
+host_linux_x86_64_embeddable:
+	rm -rf build_prover_embeddable && mkdir build_prover_embeddable && cd build_prover_embeddable && \
+	cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_embeddable $(EMBEDDABLE_CMAKE_FLAGS) && \
+	make -j$(nproc) -vvv && make install
+
+host_linux_arm64_embeddable:
+	rm -rf build_prover_embeddable && mkdir build_prover_embeddable && cd build_prover_embeddable && \
+	cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package_embeddable $(EMBEDDABLE_CMAKE_FLAGS) && \
 	make -j$(nproc) -vvv && make install
 
 # Cross-built from Linux. USE_ASM=OFF: the generated x86_64 asm uses the System V calling convention, not Windows'.
