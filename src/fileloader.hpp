@@ -24,6 +24,11 @@ private:
     void*   addr;
     size_t  size;
     int     fd;
+#ifdef _WIN32
+    // HANDLEs, kept as void* so this header doesn't need <windows.h>.
+    void*   fileHandle;
+    void*   mappingHandle;
+#endif
 };
 
 }
