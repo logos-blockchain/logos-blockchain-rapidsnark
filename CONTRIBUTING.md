@@ -52,15 +52,17 @@ git push origin <pr-branch>:logos/v0.0.8
 
 ## Releasing
 
-Tags are `v<upstream version>-logos.<n>`, e.g. `v0.0.8-logos.1`. Release candidates add `-rc.<n>`.
+Tags are `v<x.y.z>-logos.<n>` on `logos/v<x.y.z>`, e.g. `v0.0.8-logos.1` on `logos/v0.0.8`.
+Release candidates add `-rc.<n>`.
 
-1. Push the tag:
+1. Set `VERSION` to the new tag and merge it into the branch. CI fails if the tag doesn't match `VERSION`.
+2. Tag the branch and push the tag:
 
    ```bash
-   git tag v0.0.8-logos.1
+   git tag v0.0.8-logos.1 origin/logos/v0.0.8
    git push origin v0.0.8-logos.1
    ```
 
-2. CI builds and tests every platform, then creates a draft release with the archives.
+3. CI builds and tests every platform, then creates a draft release with the archives.
    Tags with `-rc` are marked as pre-releases.
-3. Review the draft and publish it.
+4. Review the draft and publish it.
