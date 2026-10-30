@@ -65,4 +65,5 @@ Release candidates add `-rc.<n>`.
 
 3. CI builds and tests every platform, then creates a draft release with the archives.
    Tags with `-rc` are marked as pre-releases.
+   It also commits the archive hashes to `rapidsnark-nix-hashes.json` on the branch and moves the tag onto that commit.
 4. Review the draft and publish it.

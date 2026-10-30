@@ -262,3 +262,50 @@ jobs:
           set -x
           prerelease=$([[ "$TAG" == *-rc* ]] && echo --prerelease || true)
           gh release create "$TAG" dist/*.tar.gz --repo ${{ github.repository }} --draft --verify-tag $prerelease --title "$TAG" --generate-notes
+
+  # Commits the archive hashes for the flake onto the tag's branch, then moves the tag onto that commit.
+  update-nix-hashes:
+    needs: release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      # v0.0.8-logos.1 -> logos/v0.0.8.
+      - name: Find release branch
+        id: branch
+        run: echo "name=logos/${TAG%%-logos.*}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Update hashes
+        run: python3 scripts/update-nix-hashes.py "$TAG" dist
+
+      # Through the API, so GitHub signs the commit. Fails if the tag isn't the branch's last commit.
+      - name: Commit hashes
+        id: commit
+        run: |
+          git diff --quiet -- rapidsnark-nix-hashes.json && exit 0
+          OID=$(gh api graphql \
+            -f query='mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid } } }' \
+            -f "input[branch][repositoryNameWithOwner]=${{ github.repository }}" \
+            -f "input[branch][branchName]=${{ steps.branch.outputs.name }}" \
+            -f "input[expectedHeadOid]=$(git rev-parse HEAD)" \
+            -f "input[message][headline]=Update Nix hashes for $TAG." \
+            -f "input[fileChanges][additions][][path]=rapidsnark-nix-hashes.json" \
+            -f "input[fileChanges][additions][][contents]=$(base64 -w0 rapidsnark-nix-hashes.json)" \
+            -q .data.createCommitOnBranch.commit.oid)
+          echo "oid=$OID" >> "$GITHUB_OUTPUT"
+
+      - name: Move tag to hashes commit
+        if: steps.commit.outputs.oid != ''
+        run: gh api -X PATCH "repos/${{ github.repository }}/git/refs/tags/$TAG" -f sha=${{ steps.commit.outputs.oid }} -F force=true
