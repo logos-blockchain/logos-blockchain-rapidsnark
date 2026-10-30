@@ -49,3 +49,18 @@ git push origin <pr-branch>:logos/v0.0.8
         [CONTRIBUTING.md](https://github.com/logos-blockchain/logos-blockchain-rust-rapidsnark/blob/main/CONTRIBUTING.md#rapidsnark).
     -   [logos-blockchain-circuits](https://github.com/logos-blockchain/logos-blockchain-circuits): see its
         [CONTRIBUTING.md](https://github.com/logos-blockchain/logos-blockchain-circuits/blob/main/CONTRIBUTING.md#rapidsnark).
+
+## Releasing
+
+Tags are `v<upstream version>-logos.<n>`, e.g. `v0.0.8-logos.1`. Release candidates add `-rc.<n>`.
+
+1. Push the tag:
+
+   ```bash
+   git tag v0.0.8-logos.1
+   git push origin v0.0.8-logos.1
+   ```
+
+2. CI builds and tests every platform, then creates a draft release with the archives.
+   Tags with `-rc` are marked as pre-releases.
+3. Review the draft and publish it.
