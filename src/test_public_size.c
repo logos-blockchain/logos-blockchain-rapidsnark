@@ -13,10 +13,14 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <stdlib.h>
-#include <sys/uio.h>
 #include <unistd.h>
 #include <time.h>
 #include "prover.h"
+
+// Windows opens files in text mode by default, which would corrupt the binary zkey.
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
 
 int
 test_groth16_public_size(const char *zkey_fname, unsigned long long *public_size) {
@@ -24,7 +28,7 @@ test_groth16_public_size(const char *zkey_fname, unsigned long long *public_size
     enum { error_sz = 256 };
     char error_msg[error_sz];
 
-    int fd = open(zkey_fname, O_RDONLY);
+    int fd = open(zkey_fname, O_RDONLY | O_BINARY);
     if (fd == -1) {
         printf("Error: %s\n", "open");
         ret_val = 1;

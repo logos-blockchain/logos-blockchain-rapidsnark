@@ -19,6 +19,7 @@ usage()
     echo "    host:           build for this host"
     echo "    host_noasm:     build for this host without asm optimizations (e.g. needed for macOS)"
     echo "    aarch64:        build for Linux aarch64"
+    echo "    windows_x86_64: build for Windows x86_64 (MinGW cross-build)"
 
     exit 1
 }
@@ -129,6 +130,11 @@ build_host()
     # artifacts of GMP that were built on one GitHub CI server, we would get a
     # crash on another server that does not support instructions from the
     # original builder.
+    #
+    # GMP 6.3.0 fails to build as C23, which is GCC's default since GCC 15.
+    # C17 is the latest standard that works.
+    # Set via CC rather than CFLAGS, which would override GMP's own flags.
+    CC="${CC:-cc} -std=gnu17" \
     ../configure --prefix="$PACKAGE_DIR" --with-pic --disable-fft --enable-fat &&
     make -j${NPROC} &&
     make install
@@ -150,7 +156,38 @@ build_host_noasm()
     mkdir "$BUILD_DIR"
     cd "$BUILD_DIR"
 
+    # GMP 6.3.0 fails to build as C23, which is GCC's default since GCC 15.
+    # C17 is the latest standard that works.
+    # Set via CC rather than CFLAGS, which would override GMP's own flags.
+    CC="${CC:-cc} -std=gnu17" \
     ../configure --prefix="$PACKAGE_DIR" --with-pic --disable-fft --disable-assembly &&
+    make -j${NPROC} &&
+    make install
+
+    cd ..
+}
+
+build_windows_x86_64()
+{
+    PACKAGE_DIR="$GMP_DIR/package_windows_x86_64"
+    BUILD_DIR=build_windows_x86_64
+
+    if [ -d "$PACKAGE_DIR" ]; then
+        echo "Windows x86_64 package is built already. See $PACKAGE_DIR"
+        return 1
+    fi
+
+    export TARGET=x86_64-w64-mingw32
+
+    echo $TARGET
+
+    rm -rf "$BUILD_DIR"
+    mkdir "$BUILD_DIR"
+    cd "$BUILD_DIR"
+
+    # gnu17: see build_host.
+    CC="${TARGET}-gcc -std=gnu17" \
+    ../configure --host $TARGET --prefix="$PACKAGE_DIR" --disable-fft &&
     make -j${NPROC} &&
     make install
 
@@ -460,6 +497,11 @@ case "$TARGET_PLATFORM" in
     "aarch64" )
         echo "Building for linux aarch64"
         build_aarch64
+    ;;
+
+    "windows_x86_64" )
+        echo "Building for Windows x86_64"
+        build_windows_x86_64
     ;;
 
     * )
