@@ -129,6 +129,8 @@ jobs:
           cp result/bin/{prover,verifier}.exe $SLUG/bin/
           cp -r result/include $SLUG/
           echo "${{ github.ref_type == 'tag' && github.ref_name || github.sha }}" > $SLUG/VERSION
+          # Make the files writable, because the Nix store's read-only permissions would stop the unpacked archive from being deleted.
+          chmod -R u+w $SLUG
           tar -czf $SLUG.tar.gz $SLUG
 
       - name: Upload artifacts
