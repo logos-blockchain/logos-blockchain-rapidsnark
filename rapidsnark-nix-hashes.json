@@ -1,1 +1,9 @@
-{}
+{
+    "v0.0.8-logos.1-rc.1": {
+        "linux-arm64": "sha256-+ipVlVzp6S2UYRVDzHeYEq9hZWqoZp7MBklEf30/hSE=",
+        "linux-x86_64": "sha256-1/YVzeZF7UMC+k3vWKbopk1nyW7eggTZEQjJDw/PH3o=",
+        "macOS-arm64": "sha256-VAMhVJNWMdZN1qm6qwObJ+klYuDaH2BwoNGyvR1T/vM=",
+        "macOS-x86_64": "sha256-MWMXkv/hLwA6txNB0ELtOm3KLOE5nYzmhwzAKHf72f4=",
+        "windows-x86_64": "sha256-ZgP6iWGofJnRk3UGqI6IK/q2s/V6ZW7EPAd5lWVo2xE="
+    }
+}
