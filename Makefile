@@ -1,9 +1,24 @@
 ###
 
+# Nothing rapidsnark builds uses OpenMP: MSM and FFT use ffiasm's ThreadPool.
+NO_OPENMP_CMAKE_FLAGS = -DUSE_OPENMP=OFF
+STATIC_CMAKE_FLAGS = -DCMAKE_EXE_LINKER_FLAGS="-static -static-libstdc++ -static-libgcc -no-pie" \
+	$(NO_OPENMP_CMAKE_FLAGS)
+
 #Build targets
 host:
 	rm -rf build_prover && mkdir build_prover && cd build_prover && \
 	cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package && \
+	make -j$(nproc) -vvv && make install
+
+host_linux_x86_64_static:
+	rm -rf build_prover && mkdir build_prover && cd build_prover && \
+	cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package $(STATIC_CMAKE_FLAGS) && \
+	make -j$(nproc) -vvv && make install
+
+host_linux_arm64_static:
+	rm -rf build_prover && mkdir build_prover && cd build_prover && \
+	cmake .. -DTARGET_PLATFORM=aarch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../package $(STATIC_CMAKE_FLAGS) && \
 	make -j$(nproc) -vvv && make install
 
 host_noasm:
