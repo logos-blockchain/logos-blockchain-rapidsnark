@@ -4,6 +4,14 @@
 > [logos-blockchain-rust-rapidsnark](https://github.com/logos-blockchain/logos-blockchain-rust-rapidsnark) and
 > [logos-blockchain-circuits](https://github.com/logos-blockchain/logos-blockchain-circuits).
 >
+> Prebuilt libs and programs for Linux, macOS and Windows are in the
+> [releases](https://github.com/logos-blockchain/logos-blockchain-rapidsnark/releases), also as Nix packages:
+>
+> ```bash
+> nix build github:logos-blockchain/logos-blockchain-rapidsnark/v0.0.8-logos.1                 # This machine's platform.
+> nix build github:logos-blockchain/logos-blockchain-rapidsnark/v0.0.8-logos.1#windows-x86_64  # Windows, from any machine.
+> ```
+>
 > See [CONTRIBUTING.md](./CONTRIBUTING.md) for how this fork is maintained.
 
 ## Important note 
