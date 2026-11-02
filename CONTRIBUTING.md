@@ -51,15 +51,21 @@ PRs are squash-merged, so each one is a single commit that is easy to rebase ont
 Tags are `v<x.y.z>-logos.<n>` on `logos/v<x.y.z>`, e.g. `v0.0.8-logos.1` on `logos/v0.0.8`.
 Release candidates add `-rc.<n>`.
 
-1. Set `VERSION` to the new tag and merge it into the branch. CI fails if the tag doesn't match `VERSION`.
-2. Tag the branch and push the tag:
+1. Tag the branch's last commit and push the tag:
 
    ```bash
+   git fetch origin
    git tag v0.0.8-logos.1 origin/logos/v0.0.8
    git push origin v0.0.8-logos.1
    ```
 
-3. CI builds and tests every platform, then creates a draft release with the archives.
+2. CI checks the tag's format, builds and tests every platform, then creates a draft release with the archives.
    Tags with `-rc` are marked as pre-releases.
-   It also commits the archive hashes to `rapidsnark-nix-hashes.json` on the branch and moves the tag onto that commit.
+3. CI commits `VERSION` and the archive hashes in `rapidsnark-nix-hashes.json` to the branch, then moves the tag onto that commit.
+   The flake reads both files to download the release, because it can't read its own tag.
+   Don't edit them by hand.
+
+   > [!NOTE]
+   > This fails if the branch got new commits after the tag. Then tag the new last commit with the next version, e.g. `-rc.2`.
+
 4. Review the draft and publish it.
