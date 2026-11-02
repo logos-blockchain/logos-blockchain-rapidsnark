@@ -33,8 +33,9 @@ PRs are squash-merged, so each one is a single commit that is easy to rebase ont
 2. When upstream tags a new version, e.g. `v0.0.9`, branch off the newest `logos/*` branch and rebase it onto the tag:
 
    ```bash
+   git fetch origin
    git fetch upstream --tags
-   git switch -c logos/v0.0.9 logos/v0.0.8
+   git switch -c logos/v0.0.9 origin/logos/v0.0.8
    git rebase --onto v0.0.9 v0.0.8
    git push origin logos/v0.0.9
    ```
