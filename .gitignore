@@ -78,3 +78,6 @@ build/fr_asm.o
 
 .idea/
 .vscode/
+
+# nix build output
+result
