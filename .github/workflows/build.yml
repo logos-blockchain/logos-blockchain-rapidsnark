@@ -125,7 +125,7 @@ jobs:
         run: |
           set -x
           mkdir -p $SLUG/lib $SLUG/bin
-          cp result/lib/{librapidsnark,libfr,libfq,libgmp,libmcfgthread}.a $SLUG/lib/
+          cp result/lib/{librapidsnark,libfr,libfq,libgmp}.a $SLUG/lib/
           cp result/bin/{prover,verifier}.exe $SLUG/bin/
           cp -r result/include $SLUG/
           echo "${{ github.ref_type == 'tag' && github.ref_name || github.sha }}" > $SLUG/VERSION

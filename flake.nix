@@ -101,8 +101,6 @@
         installPhase = ''
           cp -r package_windows_x86_64 $out
           cp depends/gmp/package_windows_x86_64/include/gmp.h $out/include/
-          # librapidsnark.a needs mcfgthread, which most MinGW toolchains don't have.
-          cp ${windowsPkgs.windows.mcfgthreads.out}/lib/libmcfgthread.a $out/lib/
         '';
       };
     in
