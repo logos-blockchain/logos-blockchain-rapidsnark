@@ -42,7 +42,9 @@ PRs are squash-merged, so each one is a single commit that is easy to rebase ont
 
    > [!NOTE]
    > If upstream changed the `depends/ffiasm` or `depends/json` submodule, set the same commit in its `flake.nix` input
-   > and run `nix flake lock`. CI checks that they match.
+   > and run `nix flake lock`.
+   > They must match, so that all builds use the same versions of these dependencies.
+   > CI checks that they match.
 
 3. Make `logos/v0.0.9` the default branch. `logos/v0.0.8` stays as it is.
 4. Update downstream repos:
