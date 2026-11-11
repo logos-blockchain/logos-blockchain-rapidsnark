@@ -40,6 +40,10 @@ PRs are squash-merged, so each one is a single commit that is easy to rebase ont
    git push origin logos/v0.0.9
    ```
 
+   > [!NOTE]
+   > If upstream changed the `depends/ffiasm` or `depends/json` submodule, set the same commit in its `flake.nix` input
+   > and run `nix flake lock`. CI checks that they match.
+
 3. Make `logos/v0.0.9` the default branch. `logos/v0.0.8` stays as it is.
 4. Update downstream repos:
     -   [logos-blockchain-rust-rapidsnark](https://github.com/logos-blockchain/logos-blockchain-rust-rapidsnark): see its
