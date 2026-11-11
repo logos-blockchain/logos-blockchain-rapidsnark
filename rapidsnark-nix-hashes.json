@@ -19,5 +19,12 @@
         "macOS-arm64": "sha256-DG6M75XlXByVKoK7QSZQw8rWppa146T1BBpIaIfUEQg=",
         "macOS-x86_64": "sha256-StGIuDJ3PyokZWxrKEeJdH5yNUiuhSXbH38g6XYHc3Q=",
         "windows-x86_64": "sha256-nMigs8flOU8cQgT2nMy8WIBjRuTXxc2hdpY/vAcYx3Y="
+    },
+    "v0.0.8-logos.1-rc.5": {
+        "linux-arm64": "sha256-pBGLQebLy9bAm80imA99w2tAvLHe7D1Azfk34XylYuo=",
+        "linux-x86_64": "sha256-ecFFEIh7faClI5MmSp5v7A+t0yDUwkpL5YQMe9Uol4M=",
+        "macOS-arm64": "sha256-dspB29bEIxz+5dyuqB+iSqXZXF5DFCufKhN5SV7N/G0=",
+        "macOS-x86_64": "sha256-pVYvPpkCq92fLo4+iIk4DhbM38ZzXQGdXskFWyoMrAs=",
+        "windows-x86_64": "sha256-IjqFNorH5xWkVO7Vmokw5TjzmBpRl6ZfC/XNT/YzJrE="
     }
 }
