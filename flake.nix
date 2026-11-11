@@ -107,9 +107,10 @@
         dontUseCmakeConfigure = true;
 
         buildPhase = ''
-          mkdir -p depends
-          cp -r ${ffiasm} depends/ffiasm
-          cp -r ${json} depends/json
+          # Initialize the required submodules with Nix.
+          mkdir -p depends/ffiasm depends/json
+          cp -r ${ffiasm}/. depends/ffiasm
+          cp -r ${json}/. depends/json
           chmod -R u+w depends/ffiasm depends/json
           cp $gmp depends/${fetchGmp.name}
           bash build_gmp.sh windows_x86_64
