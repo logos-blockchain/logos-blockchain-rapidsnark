@@ -113,8 +113,17 @@ jobs:
       SLUG: rapidsnark-windows-x86_64-${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        with:
-          submodules: "recursive"
+
+      - name: Check Nix Inputs Match Submodules
+        run: |
+          for dep in ffiasm json; do
+            submodule=$(git ls-tree HEAD "depends/$dep" | awk '{ print $3 }')
+            locked=$(jq -r ".nodes.$dep.locked.rev" flake.lock)
+            if [ "$submodule" != "$locked" ]; then
+              echo "::error::depends/$dep is at $submodule, but flake.lock has $locked."
+              exit 1
+            fi
+          done
 
       - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31.11.3
 

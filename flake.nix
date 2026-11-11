@@ -3,10 +3,25 @@
 
   # Some Windows consumers (e.g. LEZ) require logos-nix's MinGW.
   inputs.logos-nix.url = "github:logos-co/logos-nix";
-  inputs.self.submodules = true;
+
+  # The submodules in depends/ that the Windows build uses, at the same commits. CI checks that they match.
+  inputs.ffiasm = {
+    url = "github:iden3/ffiasm/aa90166dc4c5a075b835a398e15cc1e06ac90e95";
+    flake = false;
+  };
+  inputs.json = {
+    url = "github:nlohmann/json/350ff4f7ced7c4117eae2fb93df02823c8021fcb";
+    flake = false;
+  };
 
   outputs =
-    { self, logos-nix, ... }:
+    {
+      self,
+      logos-nix,
+      ffiasm,
+      json,
+      ...
+    }:
     let
       buildPkgs = logos-nix.legacyPackages.x86_64-linux;
       windowsPkgs = buildPkgs.pkgsWindows;
@@ -92,6 +107,10 @@
         dontUseCmakeConfigure = true;
 
         buildPhase = ''
+          mkdir -p depends
+          cp -r ${ffiasm} depends/ffiasm
+          cp -r ${json} depends/json
+          chmod -R u+w depends/ffiasm depends/json
           cp $gmp depends/${fetchGmp.name}
           bash build_gmp.sh windows_x86_64
           test -f depends/gmp/package_windows_x86_64/lib/libgmp.a # build_gmp.sh exits 0 even if GMP fails to build.

@@ -1,5 +1,39 @@
 {
   "nodes": {
+    "ffiasm": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767109792,
+        "narHash": "sha256-DgppHleTaTj1rROK3inMH/dasvSI2urJIncPyhMHvxc=",
+        "owner": "iden3",
+        "repo": "ffiasm",
+        "rev": "aa90166dc4c5a075b835a398e15cc1e06ac90e95",
+        "type": "github"
+      },
+      "original": {
+        "owner": "iden3",
+        "repo": "ffiasm",
+        "rev": "aa90166dc4c5a075b835a398e15cc1e06ac90e95",
+        "type": "github"
+      }
+    },
+    "json": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1596714557,
+        "narHash": "sha256-THordDPdH2qwk6lFTgeFmkl7iDuA/7YH71PTUe6vJCs=",
+        "owner": "nlohmann",
+        "repo": "json",
+        "rev": "350ff4f7ced7c4117eae2fb93df02823c8021fcb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nlohmann",
+        "repo": "json",
+        "rev": "350ff4f7ced7c4117eae2fb93df02823c8021fcb",
+        "type": "github"
+      }
+    },
     "logos-nix": {
       "inputs": {
         "nixpkgs": "nixpkgs",
@@ -53,6 +87,8 @@
     },
     "root": {
       "inputs": {
+        "ffiasm": "ffiasm",
+        "json": "json",
         "logos-nix": "logos-nix"
       }
     }
