@@ -12,6 +12,9 @@
 > nix build github:logos-blockchain/logos-blockchain-rapidsnark/v0.0.8-logos.1#windows-x86_64  # Windows, from any machine.
 > ```
 >
+> Each release lists its archives' SHA-256 in `SHA256SUMS`, and each archive has a build provenance attestation.
+> Check a downloaded archive with `gh attestation verify <archive> --repo logos-blockchain/logos-blockchain-rapidsnark`.
+>
 > See [CONTRIBUTING.md](./CONTRIBUTING.md) for how this fork is maintained.
 
 ## Important note 
