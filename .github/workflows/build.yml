@@ -8,6 +8,9 @@ on:
       - "v*-logos.*"
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   # Fails before any build if a tag is malformed.
   check-tag:
@@ -51,9 +54,12 @@ jobs:
 
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           submodules: "recursive"
 
-      - name: Cache gmp build
+      # Tag builds make the release archives, so they skip this cache and build GMP from its checked source.
+      - name: Cache gmp build # zizmor: ignore[cache-poisoning]
+        if: github.ref_type != 'tag'
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
@@ -89,6 +95,8 @@ jobs:
           [ $exit_code -ne 0 ]
 
       - name: Package
+        env:
+          VERSION: ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
         run: |
           set -x
           mkdir -p $SLUG/lib $SLUG/bin
@@ -96,7 +104,7 @@ jobs:
           cp package/bin/{prover,verifier} $SLUG/bin/
           cp -r package_embeddable/include $SLUG/
           cp depends/gmp/${{ matrix.gmp_package }}/include/gmp.h $SLUG/include/
-          echo "${{ github.ref_type == 'tag' && github.ref_name || github.sha }}" > $SLUG/VERSION
+          echo "$VERSION" > $SLUG/VERSION
           tar -czf $SLUG.tar.gz $SLUG
 
       - name: Upload artifacts
@@ -113,6 +121,8 @@ jobs:
       SLUG: rapidsnark-windows-x86_64-${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       - name: Check Nix Inputs Match Submodules
         run: |
@@ -131,13 +141,15 @@ jobs:
         run: nix build .#windows-x86_64-source -L
 
       - name: Package
+        env:
+          VERSION: ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
         run: |
           set -x
           mkdir -p $SLUG/lib $SLUG/bin
           cp result/lib/{librapidsnark,libfr,libfq,libgmp}.a $SLUG/lib/
           cp result/bin/{prover,verifier}.exe $SLUG/bin/
           cp -r result/include $SLUG/
-          echo "${{ github.ref_type == 'tag' && github.ref_name || github.sha }}" > $SLUG/VERSION
+          echo "$VERSION" > $SLUG/VERSION
           # Make the files writable, because the Nix store's read-only permissions would stop the unpacked archive from being deleted.
           chmod -R u+w $SLUG
           tar -czf $SLUG.tar.gz $SLUG
@@ -160,6 +172,8 @@ jobs:
       SLUG: rapidsnark-windows-x86_64-${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
@@ -196,9 +210,12 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           submodules: "recursive"
 
-      - name: Cache gmp build
+      # Tag builds make the release archives, so they skip this cache and build GMP from its checked source.
+      - name: Cache gmp build # zizmor: ignore[cache-poisoning]
+        if: github.ref_type != 'tag'
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
@@ -232,6 +249,8 @@ jobs:
           [ $exit_code -ne 0 ]
 
       - name: Package
+        env:
+          VERSION: ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
         run: |
           set -x
           mkdir -p $SLUG/lib $SLUG/bin
@@ -239,7 +258,7 @@ jobs:
           cp package_macos_${{ matrix.arch }}/bin/{prover,verifier} $SLUG/bin/
           cp -r package_macos_${{ matrix.arch }}/include $SLUG/
           cp depends/gmp/package_macos_${{ matrix.arch }}/include/gmp.h $SLUG/include/
-          echo "${{ github.ref_type == 'tag' && github.ref_name || github.sha }}" > $SLUG/VERSION
+          echo "$VERSION" > $SLUG/VERSION
           tar -czf $SLUG.tar.gz $SLUG
 
       - name: Upload artifacts
@@ -249,18 +268,34 @@ jobs:
           path: ${{ env.SLUG }}.tar.gz
           if-no-files-found: error
 
-  # Runs on tag push only. Creates a draft release with every archive; publish it by hand.
+  # Runs on tag push only. Creates a draft release with every archive, their `SHA256SUMS` and build provenance; publish it
+  # by hand.
   release:
     if: github.ref_type == 'tag'
     needs: [build-linux, test-windows-x86_64, build-apple]
     runs-on: ubuntu-24.04
     permissions:
+      # Creates the draft release and uploads its assets.
       contents: write
+      # Attests the build provenance of the archives.
+      attestations: write
+      id-token: write
     steps:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           path: dist
           merge-multiple: true
+
+      - name: Write SHA256SUMS
+        working-directory: dist
+        run: |
+          sha256sum -- *.tar.gz > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Attest the build provenance of the archives
+        uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # v2.2.3
+        with:
+          subject-path: dist/*.tar.gz
 
       - name: Create release
         env:
@@ -269,7 +304,7 @@ jobs:
         run: |
           set -x
           prerelease=$([[ "$TAG" == *-rc* ]] && echo --prerelease || true)
-          gh release create "$TAG" dist/*.tar.gz --repo ${{ github.repository }} --draft --verify-tag $prerelease --title "$TAG" --generate-notes
+          gh release create "$TAG" dist/*.tar.gz dist/SHA256SUMS --repo "$GITHUB_REPOSITORY" --draft --verify-tag $prerelease --title "$TAG" --generate-notes
 
   # Commits VERSION and the archive hashes for the flake onto the tag's branch, then moves the tag onto that commit.
   update-release-files:
@@ -288,6 +323,7 @@ jobs:
 
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
           ref: ${{ github.ref_name }}
 
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
@@ -303,12 +339,14 @@ jobs:
       # Through the API, so GitHub signs the commit. Fails if the tag isn't the branch's last commit.
       - name: Commit VERSION and hashes
         id: commit
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
         run: |
           git diff --quiet -- VERSION rapidsnark-nix-hashes.json && exit 0
           OID=$(gh api graphql \
             -f query='mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid } } }' \
-            -f "input[branch][repositoryNameWithOwner]=${{ github.repository }}" \
-            -f "input[branch][branchName]=${{ steps.branch.outputs.name }}" \
+            -f "input[branch][repositoryNameWithOwner]=$GITHUB_REPOSITORY" \
+            -f "input[branch][branchName]=$BRANCH" \
             -f "input[expectedHeadOid]=$(git rev-parse HEAD)" \
             -f "input[message][headline]=Release $TAG." \
             -f "input[fileChanges][additions][][path]=VERSION" \
@@ -320,4 +358,6 @@ jobs:
 
       - name: Move tag to hashes commit
         if: steps.commit.outputs.oid != ''
-        run: gh api -X PATCH "repos/${{ github.repository }}/git/refs/tags/$TAG" -f sha=${{ steps.commit.outputs.oid }} -F force=true
+        env:
+          OID: ${{ steps.commit.outputs.oid }}
+        run: gh api -X PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/$TAG" -f "sha=$OID" -F force=true

@@ -67,6 +67,7 @@ Release candidates add `-rc.<n>`.
    ```
 
 2. CI checks the tag's format, builds and tests every platform, then creates a draft release with the archives.
+   The release also lists their SHA-256 in `SHA256SUMS`, and CI attests each archive's build provenance.
    Tags with `-rc` are marked as pre-releases.
 3. CI commits `VERSION` and the archive hashes in `rapidsnark-nix-hashes.json` to the branch, then moves the tag onto that commit.
    The flake reads both files to download the release, because it can't read its own tag.
